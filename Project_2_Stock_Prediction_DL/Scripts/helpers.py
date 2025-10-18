@@ -8,21 +8,26 @@ from tensorflow.keras.layers import Dense, Flatten, SimpleRNN, GRU, LSTM, Dropou
 
 # تابع پیش‌پردازش داده و مهندسی ویژگی
 def fetch_and_prepare(ticker, start, end, features=['Adj_Close'], look_back=60):
-    """دریافت داده از yfinance، محاسبه شاخص‌های تکنیکال، نرمال‌سازی و ایجاد توالی‌های زمانی."""
+    """
+    دریافت داده از yfinance، رفع ناسازگاری ستون‌ها (MultiIndex و نام‌گذاری)،
+    محاسبه شاخص‌های تکنیکال، نرمال‌سازی و ایجاد توالی‌های زمانی.
+    """
     
-    # دانلود داده‌ها.
+    # 1. دانلود داده‌ها
     df = yf.download(ticker, start=start, end=end)
     
-    # --- شروع اصلاحات برای MultiIndex و نام‌گذاری ستون‌ها ---
+    # --- شروع اصلاحات ضروری برای رفع خطای MultiIndex و نام ستون‌ها ---
     
-    # 1. اگر ستون‌ها MultiIndex هستند، آن‌ها را به یک ایندکس ساده (Single-level Index) تبدیل کنید.
+    # اگر ستون‌ها MultiIndex هستند، آن‌ها را به یک ایندکس ساده (Single-level Index) تبدیل کنید.
+    # این کار خطای "Can only use .str accessor with Index, not MultiIndex" را رفع می‌کند.
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.droplevel()
     
-    # 2. استانداردسازی نام ستون‌ها (حذف فاصله و تبدیل به آندرسکور)
+    # استانداردسازی نام ستون‌ها (حذف فاصله و تبدیل به آندرسکور)
     df.columns = df.columns.str.replace(' ', '_')
     
-    # 3. اگر ستون 'Close' وجود دارد (که اکنون قیمت نهایی تعدیل شده را در خود دارد)، نام آن را به 'Adj_Close' تغییر دهید.
+    # 2. تضمین نام‌گذاری صحیح ستون هدف به 'Adj_Close'
+    # در نسخه‌های جدید yfinance، 'Adj Close' حذف شده و 'Close' قیمت تعدیل شده است.
     if 'Close' in df.columns and 'Adj_Close' not in df.columns:
         df.rename(columns={'Close': 'Adj_Close'}, inplace=True)
     
@@ -33,9 +38,11 @@ def fetch_and_prepare(ticker, start, end, features=['Adj_Close'], look_back=60):
         raise ValueError(f"Adj_Close column not found for feature engineering. Columns found: {df.columns.tolist()}")
         
     
-    # فیلتر کردن ستون‌ها بر اساس FEATURES
+    # فیلتر کردن ستون‌ها بر اساس FEATURES و اطمینان از وجود ستون‌های لازم برای مهندسی ویژگی
+    # (مثل Adj_Close و Volume)
     required_features = list(set(features) | set(['Adj_Close', 'Volume']))
-    df = df[required_features]
+    # فقط ستون‌هایی که در دیتافریم موجود هستند را انتخاب کنید
+    df = df[[col for col in required_features if col in df.columns]]
     
     # محاسبه شاخص‌های تکنیکال (MA21, MA50, RSI)
     df['MA21'] = df['Adj_Close'].rolling(21).mean()
