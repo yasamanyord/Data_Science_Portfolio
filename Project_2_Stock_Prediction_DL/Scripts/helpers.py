@@ -9,26 +9,30 @@ from tensorflow.keras.layers import Dense, Flatten, SimpleRNN, GRU, LSTM, Dropou
 # تابع پیش‌پردازش داده و مهندسی ویژگی
 def fetch_and_prepare(ticker, start, end, features=['Adj_Close'], look_back=60):
     """دریافت داده از yfinance، محاسبه شاخص‌های تکنیکال، نرمال‌سازی و ایجاد توالی‌های زمانی."""
-    # (خط 12)
+    
+    # دانلود داده‌ها.
     df = yf.download(ticker, start=start, end=end)
     
-    # --- شروع تغییرات ---
-    # هدف: مطمئن شویم که ستون نهایی برای قیمت تعدیل شده، "Adj_Close" نام دارد.
+    # --- شروع اصلاحات برای نام‌گذاری ستون‌ها ---
     
-    # 1. اگر ستون قدیمی 'Adj Close' وجود دارد، آن را به 'Adj_Close' تغییر نام دهید
-    if 'Adj Close' in df.columns:
-        df.rename(columns={'Adj Close':'Adj_Close'}, inplace=True)
+    # استانداردسازی نام ستون‌ها (حذف فاصله و تبدیل به آندرسکور)
+    df.columns = df.columns.str.replace(' ', '_')
     
-    # 2. اگر 'Adj Close' وجود ندارد (حالت پیش‌فرض جدید yfinance)، ستون 'Close' را به 'Adj_Close' تغییر نام دهید
-    elif 'Close' in df.columns:
+    # 1. اگر ستون 'Adj_Close' (نام قدیمی) وجود دارد، نیازی به تغییر نیست.
+    # 2. اگر ستون 'Close' (که اکنون قیمت نهایی تعدیل شده را در خود دارد) وجود دارد، نام آن را به 'Adj_Close' تغییر دهید.
+    if 'Close' in df.columns and 'Adj_Close' not in df.columns:
         df.rename(columns={'Close': 'Adj_Close'}, inplace=True)
-    # --- پایان تغییرات ---
-
-    # اطمینان از وجود ستون‌های لازم
+    
+    # --- پایان اصلاحات ---
+    
+    # بررسی نهایی برای اطمینان از وجود ستون کلیدی
     if 'Adj_Close' not in df.columns:
-        raise ValueError("Adj_Close column not found for feature engineering.")
+        raise ValueError(f"Adj_Close column not found for feature engineering. Columns found: {df.columns.tolist()}")
         
-    df = df[features + ['Volume']] if 'Volume' not in features else df[features]
+    
+    # فیلتر کردن ستون‌ها بر اساس FEATURES
+    required_features = list(set(features) | set(['Adj_Close', 'Volume']))
+    df = df[required_features]
     
     # محاسبه شاخص‌های تکنیکال (MA21, MA50, RSI)
     df['MA21'] = df['Adj_Close'].rolling(21).mean()
@@ -44,16 +48,85 @@ def fetch_and_prepare(ticker, start, end, features=['Adj_Close'], look_back=60):
     scaler = MinMaxScaler()
     scaled = scaler.fit_transform(df.values)
     
+    # تعیین ایندکس ستون هدف (Target Column Index)
+    target_index = df.columns.get_loc('Adj_Close')
+    
     # ایجاد توالی‌های آموزشی (Sequence Creation)
     X, y = [], []
     for i in range(look_back, len(scaled)):
         X.append(scaled[i-look_back:i])
-        y.append(scaled[i, 0]) # فرض بر این است که Adj_Close اولین ستون است
+        y.append(scaled[i, target_index]) # استفاده از ایندکس صحیح برای ستون هدف
         
     return np.array(X), np.array(y), scaler, df.index[look_back:]
 
-# (بقیه توابع build_mlp، build_rnn و ...)
-# ...
-# ...
-# ...
-# MODELS = { ... }
+# تابع ارزیابی مدل
+def evaluate(y_true, y_pred):
+    """محاسبه معیارهای RMSE, MAE, MAPE و Directional Accuracy."""
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    mae = mean_absolute_error(y_true, y_pred)
+    # اضافه کردن یک مقدار کوچک برای جلوگیری از تقسیم بر صفر در MAPE
+    epsilon = 1e-10 
+    mape = np.mean(np.abs((y_true - y_pred) / (y_true + epsilon))) * 100
+    
+    # Directional Accuracy
+    # محاسبه اختلاف قیمت روز بعد و قیمت امروز برای واقعی و پیش‌بینی
+    y_true_diff = np.diff(y_true, axis=0) 
+    y_pred_diff = np.diff(y_pred, axis=0)
+    dir_acc = np.mean(np.sign(y_true_diff) == np.sign(y_pred_diff)) * 100
+
+    return {'RMSE': rmse, 'MAE': mae, 'MAPE': mape, 'DirAcc': dir_acc}
+
+# تابع ساخت مدل MLP
+def build_mlp(time_step, n_features):
+    model = Sequential()
+    model.add(Flatten(input_shape=(time_step, n_features)))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+
+# تابع ساخت مدل Simple RNN
+def build_rnn(time_step, n_features):
+    model = Sequential()
+    model.add(SimpleRNN(50, input_shape=(time_step, n_features)))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+
+# تابع ساخت مدل GRU
+def build_gru(time_step, n_features):
+    model = Sequential()
+    model.add(GRU(50, return_sequences=True, input_shape=(time_step, n_features)))
+    model.add(GRU(50))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+
+# تابع ساخت مدل LSTM ساده
+def build_lstm_simple(time_step, n_features):
+    model = Sequential()
+    model.add(LSTM(50, input_shape=(time_step, n_features)))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+
+# تابع ساخت مدل LSTM پیشرفته (Stacked with Dropout)
+def build_lstm_advanced(time_step, n_features):
+    model = Sequential()
+    model.add(LSTM(100, return_sequences=True, input_shape=(time_step, n_features)))
+    model.add(Dropout(0.2))
+    model.add(LSTM(100))
+    model.add(Dropout(0.2))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+
+# دیکشنری نگه‌دارنده مدل‌ها
+MODELS = {
+    'MLP': build_mlp,
+    'RNN': build_rnn,
+    'GRU': build_gru,
+    'LSTM Simple': build_lstm_simple,
+    'LSTM Advanced': build_lstm_advanced
+}
