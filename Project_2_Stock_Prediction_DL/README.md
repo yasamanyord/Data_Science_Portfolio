@@ -27,6 +27,16 @@ The core objective was to design, implement, and comparatively evaluate the perf
 ### Analysis
 The **Advanced LSTM** model achieved superior performance across all metrics, primarily due to its ability to capture and retain **long-term dependencies** inherent in financial time series data. It significantly outperformed non-recurrent architectures (MLP) in terms of both absolute error and directional accuracy.
 
+## 📚 Project Documentation
+
+This project focuses on **Stock Price Forecasting** using Deep Learning models (LSTM, GRU, RNN, etc.). For a complete understanding of the methodology, detailed model architecture, and full evaluation results, please refer to the attached thesis.
+
+***
+
+### 📄 Full Research Thesis (Bachelor's Degree)
+
+➡️ [**Download/View Complete Thesis Document (PDF)**](پروژه لیسانس.pdf)
+
 ## 📁 Project Files
 * **`Scripts/run_experiments.py`**: Main script for data processing, model training, comparative evaluation, and results visualization.
 * **`Scripts/helpers.py`**: Contains utility functions for defining all neural network architectures and essential data preprocessing steps.
