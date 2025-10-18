@@ -1,4 +1,4 @@
-# 👨‍💻 Yasaman Yord - Data Scientist & Data Engineer Portfolio
+# 👨‍💻 Yasaman Yord - Data Scientist & AI  Portfolio
 
 > A specialist in designing scalable Data Warehouse architectures, advanced SQL modeling, and implementing Deep Learning models for financial time-series analysis.
 
