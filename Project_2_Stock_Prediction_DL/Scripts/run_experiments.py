@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import joblib
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-from .helpers import fetch_and_prepare, evaluate, MODELS # فراخوانی توابع از helpers.py
+from helpers import fetch_and_prepare, evaluate, MODELS # فراخوانی توابع از helpers.py
 
 # تنظیمات اصلی [cite: 110, 161]
 TICKER = 'AAPL' # نماد سهام مورد بررسی
