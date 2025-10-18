@@ -19,13 +19,23 @@ def fetch_and_prepare(ticker, start, end, features=['Adj_Close'], look_back=60):
     # --- شروع اصلاحات ضروری برای رفع خطای MultiIndex و نام ستون‌ها ---
     
     # اگر ستون‌ها MultiIndex هستند، آن‌ها را به یک ایندکس ساده (Single-level Index) تبدیل کنید.
-    # این کار خطای "Can only use .str accessor with Index, not MultiIndex" را رفع می‌کند.
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.droplevel()
     
     # استانداردسازی نام ستون‌ها (حذف فاصله و تبدیل به آندرسکور)
     df.columns = df.columns.str.replace(' ', '_')
     
+    # **لایه بازیابی ستون (Column Recovery) برای رفع خطای ['AAPL', 'AAPL', ...]**
+    if all(col == ticker for col in df.columns):
+        # فرض می‌کنیم که ترتیب استاندارد 6 ستون اصلی yfinance (بدون Adj Close جداگانه) رعایت شده است.
+        # Open, High, Low, Close, Volume
+        standard_names = ['Open', 'High', 'Low', 'Close', 'Volume']
+        if len(df.columns) == len(standard_names):
+            df.columns = standard_names
+        elif len(df.columns) == 6:
+            # اگر 6 ستون باشند، احتمالاً ستون قدیمی 'Adj_Close' هم هست
+            df.columns = ['Open', 'High', 'Low', 'Close', 'Volume', 'Adj_Close']
+
     # 2. تضمین نام‌گذاری صحیح ستون هدف به 'Adj_Close'
     # در نسخه‌های جدید yfinance، 'Adj Close' حذف شده و 'Close' قیمت تعدیل شده است.
     if 'Close' in df.columns and 'Adj_Close' not in df.columns:
@@ -38,10 +48,8 @@ def fetch_and_prepare(ticker, start, end, features=['Adj_Close'], look_back=60):
         raise ValueError(f"Adj_Close column not found for feature engineering. Columns found: {df.columns.tolist()}")
         
     
-    # فیلتر کردن ستون‌ها بر اساس FEATURES و اطمینان از وجود ستون‌های لازم برای مهندسی ویژگی
-    # (مثل Adj_Close و Volume)
+    # فیلتر کردن ستون‌ها بر اساس FEATURES و اطمینان از وجود ستون‌های لازم
     required_features = list(set(features) | set(['Adj_Close', 'Volume']))
-    # فقط ستون‌هایی که در دیتافریم موجود هستند را انتخاب کنید
     df = df[[col for col in required_features if col in df.columns]]
     
     # محاسبه شاخص‌های تکنیکال (MA21, MA50, RSI)
