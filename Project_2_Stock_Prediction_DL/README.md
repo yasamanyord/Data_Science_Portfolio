@@ -35,10 +35,10 @@ This project focuses on **Stock Price Forecasting** using Deep Learning models (
 
 ### 📄 Full Research Thesis (Bachelor's Degree)
 
-➡️ [**Download/View Complete Thesis Document (PDF)**]([پروژه لیسانس.pdf](https://github.com/yasamanyord/Data_Science_Portfolio/blob/018b3b293011cf8a7d508776bbd8a062c0acbf24/%D9%BE%D8%B1%D9%88%DA%98%D9%87%20%D9%84%DB%8C%D8%B3%D8%A7%D9%86%D8%B3.pdf))
+➡️ [**Download/View Complete Thesis Document (PDF)**]([[Full Research.pdf]](https://github.com/yasamanyord/Data_Science_Portfolio/blob/9c77e6d9ac7ba54ff288ecbaabd7c18c88a18251/Project_2_Stock_Prediction_DL/project%20description.pdf))
 
 ## 📁 Project Files
-* **`Scripts/run_experiments.py`**: Main script for data processing, model training, comparative evaluation, and results visualization.
-* **`Scripts/helpers.py`**: Contains utility functions for defining all neural network architectures and essential data preprocessing steps.
-* **`Results/`**: Directory for storing performance metrics (`comparison_results.csv`) and plots (`lstm_prediction_plot.png`).
-* **`Models/`**: Directory where trained models and the data scaler object are saved.
+* **`Project_2_Stock_Prediction_DL/Scripts/simple_lstm_predictor.py`**: Main script for data processing, model training, comparative evaluation, and results visualization.
+* **`Project_2_Stock_Prediction_DL/other_Models`**: Contains utility functions for defining all neural network architectures 
+* **`Project_2_Stock_Prediction_DL/project description.pdf`**: contains Project Documentation
+
