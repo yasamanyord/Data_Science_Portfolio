@@ -1,0 +1,69 @@
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+
+def build_mlp(time_step, n_features):
+    model = Sequential()
+    model.add(Flatten(input_shape=(time_step, n_features)))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+4.2.2 RNN ساده (SimpleRNN)
+from tensorflow.keras.layers import SimpleRNN
+
+def build_rnn(time_step, n_features):
+    model = Sequential()
+    model.add(SimpleRNN(50, input_shape=(time_step, n_features)))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+4.2.3 GRU
+from tensorflow.keras.layers import GRU
+
+def build_gru(time_step, n_features):
+    model = Sequential()
+    model.add(GRU(50, return_sequences=True, input_shape=(time_step, n_features)))
+    model.add(GRU(50))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+4.2.4 LSTM ساده
+from tensorflow.keras.layers import LSTM
+
+def build_lstm_simple(time_step, n_features):
+    model = Sequential()
+    model.add(LSTM(50, input_shape=(time_step, n_features)))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+4.2.5 LSTM پیشرفته (Stacked LSTM با Dropout و گزینهٔ چندمتغیره)
+from tensorflow.keras.layers import Dropout
+
+def build_lstm_advanced(time_step, n_features):
+    model = Sequential()
+    model.add(LSTM(100, return_sequences=True, input_shape=(time_step, n_features)))
+    model.add(Dropout(0.2))
+    model.add(LSTM(100))
+    model.add(Dropout(0.2))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+4.3 دستورالعمل آموزش یک مدل (تابع عمومی)
+def train_model(model, X_train, y_train, X_val=None, y_val=None, epochs=50, batch_size=32):
+    callbacks = []
+    # از EarlyStopping پیشنهادی استفاده کنید:
+    from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+    es = EarlyStopping(monitor='val_loss', patience=8, restore_best_weights=True)
+    callbacks.append(es)
+    # چکپوینت برای ذخیره بهترین مدل
+    mc = ModelCheckpoint('best_model.h5', save_best_only=True, monitor='val_loss')
+    callbacks.append(mc)
+
+    if X_val is not None and y_val is not None:
+        history = model.fit(X_train, y_train, validation_data=(X_val, y_val),
+                            epochs=epochs, batch_size=batch_size, callbacks=callbacks, verbose=2)
+    else:
+        history = model.fit(X_train, y_train, validation_split=0.1,
+                            epochs=epochs, batch_size=batch_size, callbacks=callbacks, verbose=2)
