@@ -38,10 +38,24 @@ def run_single_experiment(model_name, X_train, y_train, X_test, y_test, scaler, 
     y_pred_scaled = model.predict(X_test)
     
     # برگرداندن مقیاس (Inverse Transform) [cite: 152]
-    # reshape(-1, 1) برای تبدیل به آرایه‌ی دو بعدی مورد نیاز scaler
-    y_test_rescaled = scaler.inverse_transform(y_test.reshape(-1, 1))
-    y_pred_rescaled = scaler.inverse_transform(y_pred_scaled)
+   # تعیین ایندکس ستون هدف (Adj_Close) که باید در فایل helpers.py آخرین ستون باشد (target_index)
+    # با توجه به اینکه Adj_Close اولین ستون از 'Open', 'High', 'Low', 'Adj_Close', 'Volume', ... در helpers.py است، ایندکس آن 3 است. 
+    # اما اگر شما آرایه X را بر اساس ویژگی‌های محدود ساخته باشید، ایندکس می‌تواند متفاوت باشد.
+    
+    # بهترین راه حل این است که فرض کنیم Adj_Close اولین ستون در آرایه scaled (و در نتیجه اولین ستون در X و y) است.
+    # برای امنیت بیشتر، از همان ایندکس 0 استفاده می‌کنیم، اما آرایه ساختگی را ایجاد می‌کنیم:
+    target_index = 0 
+    n_features = X_test.shape[2] # تعداد کل ویژگی‌ها (که 8 است)
 
+    # 1. آماده‌سازی آرایه برای y_pred: آرایه‌ای با 8 ستون که ستون 0 آن y_pred است.
+    temp_pred = np.zeros((len(y_pred), n_features))
+    temp_pred[:, target_index] = y_pred.flatten()
+    y_pred_rescaled = scaler.inverse_transform(temp_pred)[:, target_index]
+
+    # 2. آماده‌سازی آرایه برای y_test: آرایه‌ای با 8 ستون که ستون 0 آن y_test است.
+    temp_test = np.zeros((len(y_test), n_features))
+    temp_test[:, target_index] = y_test.flatten()
+    y_test_rescaled = scaler.inverse_transform(temp_test)[:, target_index]
     # ارزیابی نتایج
     metrics = evaluate(y_test_rescaled, y_pred_rescaled)
     

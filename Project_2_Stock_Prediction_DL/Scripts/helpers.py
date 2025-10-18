@@ -1,148 +1,96 @@
-import numpy as np
-import pandas as pd
 import yfinance as yf
+import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten, SimpleRNN, GRU, LSTM, Dropout
+from tensorflow.keras.layers import LSTM, Dense
 
-# تابع پیش‌پردازش داده و مهندسی ویژگی
-def fetch_and_prepare(ticker, start, end, features=['Adj_Close'], look_back=60):
-    """
-    دریافت داده از yfinance، رفع ناسازگاری ستون‌ها (MultiIndex و نام‌گذاری)،
-    محاسبه شاخص‌های تکنیکال، نرمال‌سازی و ایجاد توالی‌های زمانی.
-    """
-    
-    # 1. دانلود داده‌ها
-    df = yf.download(ticker, start=start, end=end)
-    
-    # --- شروع اصلاحات ضروری برای رفع خطای MultiIndex و نام ستون‌ها ---
-    
-    # اگر ستون‌ها MultiIndex هستند، آن‌ها را به یک ایندکس ساده (Single-level Index) تبدیل کنید.
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = df.columns.droplevel()
-    
-    # استانداردسازی نام ستون‌ها (حذف فاصله و تبدیل به آندرسکور)
-    df.columns = df.columns.str.replace(' ', '_')
-    
-    # **لایه بازیابی ستون (Column Recovery) برای رفع خطای ['AAPL', 'AAPL', ...]**
-    if all(col == ticker for col in df.columns):
-        # فرض می‌کنیم که ترتیب استاندارد 6 ستون اصلی yfinance (بدون Adj Close جداگانه) رعایت شده است.
-        # Open, High, Low, Close, Volume
-        standard_names = ['Open', 'High', 'Low', 'Close', 'Volume']
-        if len(df.columns) == len(standard_names):
-            df.columns = standard_names
-        elif len(df.columns) == 6:
-            # اگر 6 ستون باشند، احتمالاً ستون قدیمی 'Adj_Close' هم هست
-            df.columns = ['Open', 'High', 'Low', 'Close', 'Volume', 'Adj_Close']
+# -----------------------------
+# 1. دریافت داده
+# -----------------------------
+def get_data(ticker, period="2y"):
+    data = yf.download(ticker, period=period)
+    return data[['Close']]
 
-    # 2. تضمین نام‌گذاری صحیح ستون هدف به 'Adj_Close'
-    # در نسخه‌های جدید yfinance، 'Adj Close' حذف شده و 'Close' قیمت تعدیل شده است.
-    if 'Close' in df.columns and 'Adj_Close' not in df.columns:
-        df.rename(columns={'Close': 'Adj_Close'}, inplace=True)
-    
-    # --- پایان اصلاحات ---
-    
-    # بررسی نهایی برای اطمینان از وجود ستون کلیدی
-    if 'Adj_Close' not in df.columns:
-        raise ValueError(f"Adj_Close column not found for feature engineering. Columns found: {df.columns.tolist()}")
-        
-    
-    # فیلتر کردن ستون‌ها بر اساس FEATURES و اطمینان از وجود ستون‌های لازم
-    required_features = list(set(features) | set(['Adj_Close', 'Volume']))
-    df = df[[col for col in required_features if col in df.columns]]
-    
-    # محاسبه شاخص‌های تکنیکال (MA21, MA50, RSI)
-    df['MA21'] = df['Adj_Close'].rolling(21).mean()
-    df['MA50'] = df['Adj_Close'].rolling(50).mean()
-    delta = df['Adj_Close'].diff()
-    up = delta.clip(lower=0)
-    down = -1 * delta.clip(upper=0)
-    roll_up = up.rolling(14).mean()
-    roll_down = down.rolling(14).mean()
-    df['RSI'] = 100 - (100 / (1 + roll_up / roll_down))
-    
-    df.dropna(inplace=True)
-    scaler = MinMaxScaler()
-    scaled = scaler.fit_transform(df.values)
-    
-    # تعیین ایندکس ستون هدف (Target Column Index)
-    target_index = df.columns.get_loc('Adj_Close')
-    
-    # ایجاد توالی‌های آموزشی (Sequence Creation)
+# -----------------------------
+# 2. ساخت دیتاست
+# -----------------------------
+def create_dataset(series, time_step=60):
     X, y = [], []
-    for i in range(look_back, len(scaled)):
-        X.append(scaled[i-look_back:i])
-        y.append(scaled[i, target_index]) # استفاده از ایندکس صحیح برای ستون هدف
-        
-    return np.array(X), np.array(y), scaler, df.index[look_back:]
+    for i in range(len(series)-time_step-1):
+        X.append(series[i:(i+time_step), 0])
+        y.append(series[i+time_step, 0])
+    return np.array(X), np.array(y)
 
-# تابع ارزیابی مدل
-def evaluate(y_true, y_pred):
-    """محاسبه معیارهای RMSE, MAE, MAPE و Directional Accuracy."""
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    mae = mean_absolute_error(y_true, y_pred)
-    epsilon = 1e-10 
-    mape = np.mean(np.abs((y_true - y_pred) / (y_true + epsilon))) * 100
-    
-    # Directional Accuracy
-    y_true_diff = np.diff(y_true, axis=0) 
-    y_pred_diff = np.diff(y_pred, axis=0)
-    dir_acc = np.mean(np.sign(y_true_diff) == np.sign(y_pred_diff)) * 100
+# -----------------------------
+# 3. آموزش مدل
+# -----------------------------
+def train_model(df, time_step=60, epochs=10):
+    scaler = MinMaxScaler(feature_range=(0,1))
+    scaled_data = scaler.fit_transform(df)
 
-    return {'RMSE': rmse, 'MAE': mae, 'MAPE': mape, 'DirAcc': dir_acc}
+    # تقسیم آموزش و تست
+    train_size = int(len(scaled_data)*0.8)
+    train_data, test_data = scaled_data[:train_size], scaled_data[train_size-time_step:]
 
-# تابع ساخت مدل MLP
-def build_mlp(time_step, n_features):
+    # آماده‌سازی داده‌ها
+    X_train, y_train = create_dataset(train_data, time_step)
+    X_test, y_test = create_dataset(test_data, time_step)
+
+    X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
+    X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
+
+    # ساخت مدل
     model = Sequential()
-    model.add(Flatten(input_shape=(time_step, n_features)))
-    model.add(Dense(128, activation='relu'))
-    model.add(Dense(64, activation='relu'))
+    model.add(LSTM(50, return_sequences=True, input_shape=(time_step, 1)))
+    model.add(LSTM(50))
     model.add(Dense(1))
-    model.compile(optimizer='adam', loss='mse')
-    return model
+    model.compile(loss="mean_squared_error", optimizer="adam")
 
-# تابع ساخت مدل Simple RNN
-def build_rnn(time_step, n_features):
-    model = Sequential()
-    model.add(SimpleRNN(50, input_shape=(time_step, n_features)))
-    model.add(Dense(1))
-    model.compile(optimizer='adam', loss='mse')
-    return model
+    # آموزش
+    model.fit(X_train, y_train, epochs=epochs, batch_size=32, verbose=1)
 
-# تابع ساخت مدل GRU
-def build_gru(time_step, n_features):
-    model = Sequential()
-    model.add(GRU(50, return_sequences=True, input_shape=(time_step, n_features)))
-    model.add(GRU(50))
-    model.add(Dense(1))
-    model.compile(optimizer='adam', loss='mse')
-    return model
+    # پیش‌بینی روی داده تست
+    y_pred = model.predict(X_test)
 
-# تابع ساخت مدل LSTM ساده
-def build_lstm_simple(time_step, n_features):
-    model = Sequential()
-    model.add(LSTM(50, input_shape=(time_step, n_features)))
-    model.add(Dense(1))
-    model.compile(optimizer='adam', loss='mse')
-    return model
+    # برگردوندن مقیاس
+    y_test_rescaled = scaler.inverse_transform(y_test.reshape(-1,1))
+    y_pred_rescaled = scaler.inverse_transform(y_pred)
 
-# تابع ساخت مدل LSTM پیشرفته (Stacked with Dropout)
-def build_lstm_advanced(time_step, n_features):
-    model = Sequential()
-    model.add(LSTM(100, return_sequences=True, input_shape=(time_step, n_features)))
-    model.add(Dropout(0.2))
-    model.add(LSTM(100))
-    model.add(Dropout(0.2))
-    model.add(Dense(1))
-    model.compile(optimizer='adam', loss='mse')
-    return model
+    # نمودار مقایسه
+    plt.figure(figsize=(12,6))
+    plt.plot(y_test_rescaled, label="قیمت واقعی")
+    plt.plot(y_pred_rescaled, label="قیمت پیش‌بینی شده")
+    plt.title(f"مقایسه پیش‌بینی و واقعیت")
+    plt.xlabel("روزها")
+    plt.ylabel("قیمت")
+    plt.legend()
+    plt.show(block=False)   # 🔹 ادامه کد بعد از نمایش نمودار اجرا میشه
 
-# دیکشنری نگه‌دارنده مدل‌ها
-MODELS = {
-    'MLP': build_mlp,
-    'RNN': build_rnn,
-    'GRU': build_gru,
-    'LSTM Simple': build_lstm_simple,
-    'LSTM Advanced': build_lstm_advanced
-}
+    return model, scaler, df, time_step
+
+# -----------------------------
+# 4. پیش‌بینی روز بعد
+# -----------------------------
+def predict_next_day(model, scaler, df, time_step=60):
+    last_data = df[-time_step:].values
+    scaled_last = scaler.transform(last_data)
+    X_input = scaled_last.reshape(1, time_step, 1)
+    pred_scaled = model.predict(X_input)
+    pred = scaler.inverse_transform(pred_scaled)
+    return float(pred[0][0])
+
+# -----------------------------
+# 5. اجرای کل پروژه برای چند نماد
+# -----------------------------
+if __name__ == "__main__":
+    tickers = ["AAPL", "TSLA", "MSFT"]  # می‌تونی هر تعداد نماد اضافه کنی
+
+    for ticker in tickers:
+        print(f"\n🟢 شروع پردازش برای {ticker} ...")
+        df = get_data(ticker)
+        model, scaler, df, time_step = train_model(df, epochs=200)
+        tomorrow_price = predict_next_day(model, scaler, df, time_step)
+        print(f"📈 پیش‌بینی قیمت فردا برای {ticker}: {tomorrow_price:.2f} دلار")
+    # نمایش نمودار تا وقتی کاربر ببنده
+    plt.show()  
