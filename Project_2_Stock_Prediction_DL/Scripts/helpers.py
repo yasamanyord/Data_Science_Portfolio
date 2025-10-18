@@ -13,13 +13,16 @@ def fetch_and_prepare(ticker, start, end, features=['Adj_Close'], look_back=60):
     # دانلود داده‌ها.
     df = yf.download(ticker, start=start, end=end)
     
-    # --- شروع اصلاحات برای نام‌گذاری ستون‌ها ---
+    # --- شروع اصلاحات برای MultiIndex و نام‌گذاری ستون‌ها ---
     
-    # استانداردسازی نام ستون‌ها (حذف فاصله و تبدیل به آندرسکور)
+    # 1. اگر ستون‌ها MultiIndex هستند، آن‌ها را به یک ایندکس ساده (Single-level Index) تبدیل کنید.
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.droplevel()
+    
+    # 2. استانداردسازی نام ستون‌ها (حذف فاصله و تبدیل به آندرسکور)
     df.columns = df.columns.str.replace(' ', '_')
     
-    # 1. اگر ستون 'Adj_Close' (نام قدیمی) وجود دارد، نیازی به تغییر نیست.
-    # 2. اگر ستون 'Close' (که اکنون قیمت نهایی تعدیل شده را در خود دارد) وجود دارد، نام آن را به 'Adj_Close' تغییر دهید.
+    # 3. اگر ستون 'Close' وجود دارد (که اکنون قیمت نهایی تعدیل شده را در خود دارد)، نام آن را به 'Adj_Close' تغییر دهید.
     if 'Close' in df.columns and 'Adj_Close' not in df.columns:
         df.rename(columns={'Close': 'Adj_Close'}, inplace=True)
     
@@ -64,12 +67,10 @@ def evaluate(y_true, y_pred):
     """محاسبه معیارهای RMSE, MAE, MAPE و Directional Accuracy."""
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     mae = mean_absolute_error(y_true, y_pred)
-    # اضافه کردن یک مقدار کوچک برای جلوگیری از تقسیم بر صفر در MAPE
     epsilon = 1e-10 
     mape = np.mean(np.abs((y_true - y_pred) / (y_true + epsilon))) * 100
     
     # Directional Accuracy
-    # محاسبه اختلاف قیمت روز بعد و قیمت امروز برای واقعی و پیش‌بینی
     y_true_diff = np.diff(y_true, axis=0) 
     y_pred_diff = np.diff(y_pred, axis=0)
     dir_acc = np.mean(np.sign(y_true_diff) == np.sign(y_pred_diff)) * 100
