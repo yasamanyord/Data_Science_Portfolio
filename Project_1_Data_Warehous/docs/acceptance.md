@@ -23,8 +23,8 @@
 | Quality gate | Ten checks, tampering negative control, baseline regression | Verified |
 | Recovery | Online backup and equal restored totals | Verified |
 | Scale probe | 5,000 and 50,000 synthetic rows | Verified locally, not a load/concurrency SLA |
-| Browser UX | Browser smoke and responsive CSS | Implemented; Chromium unavailable locally; CI verification pending |
-| Container package | Non-root Dockerfile, Compose health and smoke workflow | Implemented; actual build/run not locally verified |
+| Browser UX | Browser smoke and responsive CSS | Verified in hosted CI on desktop/mobile; real screenshots included |
+| Container package | Non-root Dockerfile, Compose health and smoke workflow | Verified hosted CI container build, startup and API smoke |
 | BI handoff | Monthly aggregate CSV export and Power BI guide | Export verified; actual Power BI report not created |
 | Company deployment | Managed service, client-approved real sources, access and compliance review | Not implemented / no client validated |
 | Governance & operations | Ownership, signed source definitions, retention, disaster recovery, monitoring | Requires real company acceptance |

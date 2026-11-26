@@ -31,7 +31,7 @@ Open /docs and demonstrate GET /api/report with filters. Export monthly CSV to a
 
 ## 4:30 — Be honest about limits
 
-"This is a locally verified synthetic-data build. It won't accept arbitrary SQL, multi-currency or conflicting corrections; a real system needs a signed data contract, authenticated database/BI roles, a managed warehouse, scheduling, operational ownership and tests on client data. The browser and container smoke workflows are configured; I review the actual run results before claiming they passed."
+"This is a locally verified synthetic-data build. It won't accept arbitrary SQL, multi-currency or conflicting corrections; a real system needs a signed data contract, authenticated database/BI roles, a managed warehouse, scheduling, operational ownership and tests on client data. Both browser and container smoke jobs passed hosted CI; I review the actual run evidence for future changes."
 
 ## Interview questions to prepare
 

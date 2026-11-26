@@ -5,7 +5,7 @@ Portfolio project by **Yasaman Yord** · SQL · Python · SQLite · FastAPI · B
 > An evolution of the original Wholesale Furniture Sales Data Warehouse exercise into a complete, reproducible analytics application. Built to demonstrate the same engineering discipline as [BrokerAssist AI](https://github.com/yasamanyord/brokerassist-ai): a real workflow, verifiable outputs, failure boundaries, and a documented handoff.
 
 [![Warehouse checks](https://github.com/yasamanyord/Data_Science_Portfolio/actions/workflows/warehouse-checks.yml/badge.svg)](https://github.com/yasamanyord/Data_Science_Portfolio/actions/workflows/warehouse-checks.yml)
-**Status:** locally verified core pipeline and API; synthetic/local portfolio system, not a deployed enterprise warehouse.
+**Status:** core pipeline and API verified locally; [all three GitHub Actions jobs passed](https://github.com/yasamanyord/Data_Science_Portfolio/actions/runs/45825862505). Synthetic/local portfolio system, not a deployed enterprise warehouse.
 
 ## 1. Business problem
 
@@ -29,6 +29,12 @@ Furniture Sales Intelligence turns incoming sale-line CSV batches into an audita
 
 No commercial data, paid API keys, external CRM providers, or cloud accounts are needed for the local demo. This is a conventional deterministic data-engineering project; an LLM is deliberately not put in charge of financial totals.
 
+## Dashboard preview
+
+![Actual dashboard browser screenshot captured by GitHub Actions](docs/dashboard-preview.png)
+
+Actual 1440px desktop screenshot from the passing automated Playwright test, using fictional data and live warehouse calculations. See the [mobile preview](docs/dashboard-mobile.png) and [verification record](evidence/ci_verification.md).
+
 ## 2. Run the end-to-end application
 
 ### Windows (recommended)
@@ -38,7 +44,7 @@ No commercial data, paid API keys, external CRM providers, or cloud accounts are
 3. Double-click [`run_demo.bat`](run_demo.bat).
 4. Open **http://127.0.0.1:8000**. Keep the console open.
 
-The launcher creates a virtual environment, installs dependencies, builds the warehouse and starts the dashboard. Internet is needed for the first dependency installation only. Replaying the same generated source does not duplicate sales.
+The launcher creates a virtual environment, installs dependencies, builds the warehouse and starts the dashboard. Internet is needed for the first dependency installation; the dashboard and JSON API then work offline. The optional interactive OpenAPI page may fetch Swagger UI assets from a CDN. Replaying the same generated source does not duplicate sales.
 
 ### macOS / Linux
 
@@ -66,7 +72,7 @@ Windows terminal alternative after creating the virtual environment:
 docker compose up --build
 ```
 
-The container runs as a non-root user, binds only to localhost on the host, uses a persistent named demo volume and has a health check. Docker build/start verification is configured in CI; Docker was unavailable in the development workspace and is not claimed to have been tested locally.
+The container runs as a non-root user, binds only to localhost on the host, uses a persistent named demo volume and has a health check. Docker was unavailable locally; the [actual GitHub Actions container smoke test](https://github.com/yasamanyord/Data_Science_Portfolio/actions/runs/45825862505) built and ran the container, then verified the API and quality checks.
 
 ### Demonstration
 
@@ -195,10 +201,11 @@ The [actual local validation report](evidence/validation.json) contains measured
 | Invalid-batch negative control | Rejected; prior metrics unchanged |
 | Online backup recovery | Verified identical totals |
 | Live localhost FastAPI smoke | Health, report, quality, HTML and JS served |
+| GitHub Actions release workflow | All 3 jobs passed: tests/regression, desktop/mobile browser, Docker |
 
 The 5,000-row synthetic seed generated 53,373 units, 250 distinct customer IDs, 10 product IDs and **$17,068,102.00 net revenue** (fictional analytical test data, not real sales). Every value above is reconciled independently from the generated CSV. Local timings are included in the evidence report for reproducibility, not presented as production performance guarantees.
 
-The real browser smoke suite and Docker smoke are in [GitHub Actions](https://github.com/yasamanyord/Data_Science_Portfolio/actions/workflows/warehouse-checks.yml). Browser execution was blocked locally by missing Chromium binaries and restricted downloads; JavaScript syntax and API/asset delivery were verified. Check Actions for remote run evidence before claiming browser or container validation.
+The [verified GitHub Actions run](https://github.com/yasamanyord/Data_Science_Portfolio/actions/runs/45825862505) passed all three jobs, including the real Chromium desktop/mobile smoke suite and Docker image build and runtime smoke. Browser and Docker binaries were unavailable locally; these checks were validated on the hosted runner. See [CI evidence and observed fixes](evidence/ci_verification.md).
 
 ## 6. Ingest your next synthetic batch
 
