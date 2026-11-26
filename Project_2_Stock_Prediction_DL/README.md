@@ -30,6 +30,12 @@ My original bachelor's research compared MLP, Simple RNN, GRU, LSTM and stacked 
 | Operations | Shadow evaluation of appended observations, regression gate, runbook, CI, container configuration |
 | Dashboard | Responsive model comparison, history chart with uncertainty, release status, data lineage |
 
+## Dashboard preview
+
+![MarketPulse dashboard screenshot from GitHub Actions](docs/dashboard-preview.jpg)
+
+Actual desktop browser screenshot captured by the automated Playwright test on the synthetic fixture.
+
 ## Measured results — offline fixture
 
 **These results are from the generated fictional DEMO series, not real AAPL, TSLA or MSFT performance.** 900 observations, 60-observation lookback, 503 initial training targets, 168 validation targets, 168 holdout targets. Data ends 2023-06-13, an intentionally historical fixture.
@@ -46,7 +52,7 @@ My original bachelor's research compared MLP, Simple RNN, GRU, LSTM and stacked 
 - Promotion gate: **PASS**. Nominal 90% band achieved **86.90%** observed coverage, illustrating imperfect uncertainty under shifted volatility.
 - Persistence always forecasts no change; its sign-match rate is not a meaningful up/down classifier. Do not interpret the difference as trading accuracy or returns.
 - The synthetic data includes deliberately simulated autocorrelation and volatility change. It is a development/verification fixture, **not an independent real-market holdout**.
-- Local verification: **35 passing tests, two optional TensorFlow tests skipped**, Node JavaScript syntax check, FastAPI source/API smoke. Browser and Docker execution were not verified locally (browser binary and Docker unavailable). CI includes browser and optional neural validation; check actual Actions status.
+- Local verification: **35 passing tests, two optional TensorFlow tests skipped**, Node JavaScript syntax check, FastAPI source/API smoke. The [first published GitHub Actions run](https://github.com/yasamanyord/Data_Science_Portfolio/actions/runs/45823736236) passed all four jobs: offline regression, Playwright desktop/mobile, Docker smoke, and TensorFlow neural contracts/comparison. TensorFlow, the browser binary and Docker were unavailable locally.
 
 Evidence: [experiment report](artifacts/demo/report.json) · [model artifact](artifacts/demo/model.json) · [manifest](artifacts/demo/manifest.json) · [frozen data](artifacts/demo/observations.csv).
 
@@ -96,7 +102,7 @@ python -m marketpulse demo --deep --epochs 20 --output runs/deep
 python -m unittest discover -s tests -v
 ```
 
-Five Keras architectures are included; the default fixture's verified result uses NumPy ridge. The optional neural execution is not claimed as locally validated. Use CPU by default; different numerical-library/accelerator versions may lead to small metric differences. Check the saved environment metadata.
+Five Keras architectures are included; the default fixture's verified result uses NumPy ridge. The optional neural smoke and end-to-end comparison passed in GitHub Actions (not locally); this is a synthetic one-epoch smoke, not real-market neural performance. Use CPU by default; different numerical-library/accelerator versions may lead to small metric differences. Check the saved environment metadata.
 
 ## Train on historical market data (local research)
 
@@ -166,7 +172,7 @@ Python API runs read-only, starts only with checked synthetic artifacts, and has
 docker compose up --build
 ```
 
-Compose exposes port 8000 only on localhost, sets a read-only filesystem, drops Linux capabilities and runs a non-root image. Container build/run was not locally verified. For a public portfolio demonstration, use a container host and the same **synthetic** artifact only; deploy with TLS, rate limits, health checks and platform logs. No live hosting has been provisioned. See the [deployment and runbook](docs/operations.md).
+Compose exposes port 8000 only on localhost, sets a read-only filesystem, drops Linux capabilities and runs a non-root image. Container build/run passed the first GitHub Actions container smoke job, not locally. For a public portfolio demonstration, use a container host and the same **synthetic** artifact only; deploy with TLS, rate limits, health checks and platform logs. No live hosting has been provisioned. See the [deployment and runbook](docs/operations.md).
 
 ## Project structure
 
@@ -201,7 +207,8 @@ Project_2_Stock_Prediction_DL/
 - [ ] Run all five neural models against authorized real-market history
 - [ ] Validate on independent walk-forward periods, tickers and market regimes
 - [ ] Verify actual data provider availability, calendar and revision handling
-- [ ] Confirm GitHub Actions browser/deep/container runs and deploy synthetic demo, if desired
+- [x] First GitHub Actions offline, browser, neural and Docker checks passed
+- [ ] Deploy synthetic demo on a public host, if desired
 - [ ] Complete security, licensing and operational acceptance before real company use
 
 This is working, production-oriented portfolio software, not a claim of deployed financial forecasting, real-market profitability, or independently audited production readiness. **Research and educational use only.**

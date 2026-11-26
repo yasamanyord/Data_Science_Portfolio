@@ -3,7 +3,7 @@
 ## Local setup
 Install Python 3.11/3.12 and core requirements. Start Uvicorn on loopback. GET /health must report healthy synthetic service; GET /api/forecast must have synthetic=true and the evaluated as-of date, or HTTP 409 on gate rejection. Open / and /openapi.json. See README for Windows and Linux/macOS instructions.
 
-Docker build from this project directory: docker compose up --build. Default mapped host port is loopback 8000. Docker is non-root and read-only at runtime; TLS, rate limiting, platform networking and logs are host responsibilities. Configuration was authored but not executed locally; CI includes a Docker smoke job.
+Docker build from this project directory: docker compose up --build. Default mapped host port is loopback 8000. Docker is non-root and read-only at runtime; TLS, rate limiting, platform networking and logs are host responsibilities. Configuration was not executed locally; the initial GitHub Actions Docker smoke job passed. Check later workflow results before deploying.
 
 ### Public demonstration
 If publishing, configure a container service with this folder as root/build context, Dockerfile, HTTP port 8000, health /health and TLS. Use only the bundled fictional artifact. No secrets or live data are necessary. A successful build and health response are deployment checks, not proof of production suitability.

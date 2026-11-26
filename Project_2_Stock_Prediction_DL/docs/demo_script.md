@@ -21,4 +21,4 @@
 - How do you know a model change didn't make things worse?
 - What does uncertainty coverage under 90% mean?
 - How do you detect revised data and monitor performance after release?
-- What is not yet live tested? TensorFlow, actual provider, public deployment and independent real data.
+- What is not yet live tested? Actual provider, public deployment and independent real data. TensorFlow synthetic smoke tests passed in GitHub Actions.

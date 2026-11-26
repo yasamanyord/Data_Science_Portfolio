@@ -14,19 +14,24 @@ function svg(tag, attrs, text) {
 function draw() {
   const data = el("range").value === "all" ? report.holdout : report.holdout.slice(-Number(el("range").value));
   const chart=el("chart"); chart.replaceChildren();
+  const narrow=chart.clientWidth<520;
+  const width=narrow?Math.max(300,Math.round(chart.clientWidth)):820;
+  const height=narrow?280:335;
+  const left=narrow?43:55, right=width-(narrow?12:25), bottom=height-50;
+  chart.setAttribute("viewBox", "0 0 "+width+" "+height);
   const lo=Math.min(...data.map(d=>Math.min(d.lower,d.actual,d.persistence,d.prediction)));
   const hi=Math.max(...data.map(d=>Math.max(d.upper,d.actual,d.persistence,d.prediction)));
   const spread=Math.max(hi-lo, .001);
-  const x=i=>55+i*740/Math.max(data.length-1,1);
-  const y=v=>285-(v-lo)*245/spread;
+  const x=i=>left+i*(right-left)/Math.max(data.length-1,1);
+  const y=v=>bottom-(v-lo)*(bottom-40)/spread;
   for(let i=0;i<=5;i++){
     const v=lo+spread*i/5, yy=y(v);
-    chart.append(svg("line",{x1:55,y1:yy,x2:795,y2:yy,class:"grid"}),svg("text",{x:48,y:yy+4,"text-anchor":"end",class:"axis"},v.toFixed(1)));
+    chart.append(svg("line",{x1:left,y1:yy,x2:right,y2:yy,class:"grid"}),svg("text",{x:left-7,y:yy+4,"text-anchor":"end",class:"axis"},v.toFixed(1)));
   }
   const pts=k=>data.map((d,i)=>[x(i),y(d[k])].join(","));
   chart.append(svg("polygon",{points:pts("upper").concat(pts("lower").reverse()).join(" "),class:"confidence"}));
   [["persistence","baseLine"],["prediction","predLine"],["actual","actualLine"]].forEach(([k,c])=>chart.append(svg("polyline",{points:pts(k).join(" "),class:c})));
-  [0,Math.floor((data.length-1)/2),data.length-1].forEach(i=>chart.append(svg("text",{x:x(i),y:310,"text-anchor":i===0?"start":i===data.length-1?"end":"middle",class:"axis"},data[i].date)));
+  [0,Math.floor((data.length-1)/2),data.length-1].forEach(i=>chart.append(svg("text",{x:x(i),y:bottom+25,"text-anchor":i===0?"start":i===data.length-1?"end":"middle",class:"axis"},data[i].date)));
 }
 async function init(){
   const [rr,fr]=await Promise.all([fetch("/api/report"),fetch("/api/forecast")]);
@@ -48,6 +53,6 @@ async function init(){
   }
   for(const [id,key] of [["train","first_train_target"],["val","first_validation_target"],["test","first_holdout_target"],["end","last_holdout_target"]])put(id,report.split[key]);
   put("release","Release checks: "+Object.entries(report.gate.checks).map(([k,v])=>k+" "+(v?"PASS":"FAIL")).join(" · ")+" · Tolerance "+percent(report.gate.tolerance*100));
-  el("range").addEventListener("change",draw);draw();
+  el("range").addEventListener("change",draw);window.addEventListener("resize",()=>requestAnimationFrame(draw));draw();
 }
 init().catch(err=>{el("error").hidden=false;put("error",err.message);});
