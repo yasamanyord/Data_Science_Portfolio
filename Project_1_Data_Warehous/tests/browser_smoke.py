@@ -1,6 +1,7 @@
 """Real Chromium checks, run against a fresh synthetic demo server."""
 import argparse
 import os
+import re
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
@@ -46,7 +47,8 @@ def main():
         page.locator("#reset").click()
         expect(page.locator("#status")).to_contain_text("5,000 sale lines")
         page.goto(args.url+"/docs")
-        expect(page.get_by_text("Furniture Sales Intelligence", exact=True)).to_be_visible()
+        expect(page.get_by_role("heading", name=re.compile("Furniture Sales Intelligence"), level=1)).to_be_visible()
+        expect(page.get_by_role("link", name="/api/report", exact=True)).to_be_visible()
         mobile = browser.new_page(viewport={"width":390,"height":844}, device_scale_factor=1, is_mobile=True, has_touch=True)
         mobile.on("pageerror", lambda error: errors.append(str(error)))
         mobile.goto(args.url)
