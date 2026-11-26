@@ -60,10 +60,11 @@ function bars(id, rows, label) {
 function trend(months) {
   const max=Math.max(1,...months.map(m=>m.net_cents));
   replace("trend",months.length?months.map(m=>{
-    const col=node("div",null,"trend-col"), bar=node("div",null,"trend-bar");
-    bar.style.height=(80*m.net_cents/max)+"%";
+    const col=node("div",null,"trend-col"), plot=node("div",null,"trend-plot"), bar=node("div",null,"trend-bar");
+    bar.style.height=(100*m.net_cents/max)+"%";
     bar.title=m.month+": "+money(m.net_cents);
-    col.append(bar,node("div",m.month,"trend-label"));return col;
+    plot.append(bar);
+    col.append(plot,node("div",m.month,"trend-label"));return col;
   }):[node("p","No matching data","empty")]);
 }
 async function render() {
@@ -94,6 +95,7 @@ async function operations() {
     const [q,r]=await Promise.all([get("/api/quality"),get("/api/runs")]);
     $("quality-status").textContent=q.passed?"All checks passed":"Check failures";
     $("quality-status").className="pill "+(q.passed?"good":"bad");
+    if(!q.passed){$("health").textContent="Quality check failed";$("health").className="pill bad";}
     replace("checks",q.checks.map(c=>{
       const el=node("div",null,c.passed?"check":"check fail");
       el.append(node("span",c.name.replaceAll("_"," ")),node("span",c.passed?"PASS":c.failures+" failures"));return el;

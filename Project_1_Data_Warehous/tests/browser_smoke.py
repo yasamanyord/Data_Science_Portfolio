@@ -24,6 +24,9 @@ def main():
         expect(page.locator("#quality-status")).to_have_text("All checks passed")
         expect(page.locator("#checks .check")).to_have_count(10)
         expect(page.locator("#trend .trend-col")).to_have_count(24)
+        assert page.locator("#trend .trend-label").evaluate_all(
+            "labels => labels.every(e => e.scrollHeight <= e.clientHeight + 1)"
+        ), "monthly labels clipped"
         expect(page.locator("#kpis .kpi")).to_have_count(8)
         if args.screenshot:
             args.screenshot.parent.mkdir(parents=True, exist_ok=True)
