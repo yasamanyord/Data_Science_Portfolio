@@ -1,0 +1,56 @@
+test_api_has_no_write_endpoints (test_api.ApiTest.test_api_has_no_write_endpoints) ... ok
+test_dashboard_and_assets (test_api.ApiTest.test_dashboard_and_assets) ... ok
+test_filter (test_api.ApiTest.test_filter) ... ok
+test_health (test_api.ApiTest.test_health) ... ok
+test_invalid_date (test_api.ApiTest.test_invalid_date) ... ok
+test_no_path_traversal (test_api.ApiTest.test_no_path_traversal) ... ok
+test_openapi (test_api.ApiTest.test_openapi) ... ok
+test_quality (test_api.ApiTest.test_quality) ... ok
+test_report (test_api.ApiTest.test_report) ... ok
+test_reverse_date (test_api.ApiTest.test_reverse_date) ... ok
+test_run_history (test_api.ApiTest.test_run_history) ... ok
+test_uninitialized_database_unavailable (test_api.ApiTest.test_uninitialized_database_unavailable) ... ok
+test_backup_restores_exact_metrics (test_warehouse.WarehouseTest.test_backup_restores_exact_metrics) ... ok
+test_bad_date (test_warehouse.WarehouseTest.test_bad_date) ... ok
+test_bad_utf8 (test_warehouse.WarehouseTest.test_bad_utf8) ... ok
+test_concurrent_same_file (test_warehouse.WarehouseTest.test_concurrent_same_file) ... ok
+test_conflicting_event_rolls_back_all (test_warehouse.WarehouseTest.test_conflicting_event_rolls_back_all) ... ok
+test_control_char (test_warehouse.WarehouseTest.test_control_char) ... ok
+test_db_constraints_and_readonly (test_warehouse.WarehouseTest.test_db_constraints_and_readonly) ... ok
+test_decimal_cents_rejected (test_warehouse.WarehouseTest.test_decimal_cents_rejected) ... ok
+test_discount_exceeds_gross (test_warehouse.WarehouseTest.test_discount_exceeds_gross) ... ok
+test_duplicate_in_same_batch_rolls_back (test_warehouse.WarehouseTest.test_duplicate_in_same_batch_rolls_back) ... ok
+test_empty_batch (test_warehouse.WarehouseTest.test_empty_batch) ... ok
+test_exact_file_replay (test_warehouse.WarehouseTest.test_exact_file_replay) ... ok
+test_export_and_exclusive_creation (test_warehouse.WarehouseTest.test_export_and_exclusive_creation) ... ok
+test_extra_column (test_warehouse.WarehouseTest.test_extra_column) ... ok
+test_filters_inclusive (test_warehouse.WarehouseTest.test_filters_inclusive) ... ok
+test_full_seed_independent_reconciliation (test_warehouse.WarehouseTest.test_full_seed_independent_reconciliation) ... ok
+test_generator_deterministic (test_warehouse.WarehouseTest.test_generator_deterministic) ... ok
+test_golden_kpis_and_yoy (test_warehouse.WarehouseTest.test_golden_kpis_and_yoy) ... ok
+test_id_required (test_warehouse.WarehouseTest.test_id_required) ... ok
+test_init_idempotent (test_warehouse.WarehouseTest.test_init_idempotent) ... ok
+test_invalid_date_range (test_warehouse.WarehouseTest.test_invalid_date_range) ... ok
+test_invalid_quantity (test_warehouse.WarehouseTest.test_invalid_quantity) ... ok
+test_late_invalid_row_rolls_back (test_warehouse.WarehouseTest.test_late_invalid_row_rolls_back) ... ok
+test_legacy_actual_100_rows (test_warehouse.WarehouseTest.test_legacy_actual_100_rows) ... ok
+test_legacy_requires_assumption (test_warehouse.WarehouseTest.test_legacy_requires_assumption) ... ok
+test_mixed_overlap_insert_and_skip (test_warehouse.WarehouseTest.test_mixed_overlap_insert_and_skip) ... ok
+test_negative_money (test_warehouse.WarehouseTest.test_negative_money) ... ok
+test_no_match_null_rate (test_warehouse.WarehouseTest.test_no_match_null_rate) ... ok
+test_raw_payload_hash_detected (test_warehouse.WarehouseTest.test_raw_payload_hash_detected) ... ok
+test_refuses_existing_unrelated_db (test_warehouse.WarehouseTest.test_refuses_existing_unrelated_db) ... ok
+test_refuses_future_version (test_warehouse.WarehouseTest.test_refuses_future_version) ... ok
+test_snapshot_dimension_preserves_history (test_warehouse.WarehouseTest.test_snapshot_dimension_preserves_history) ... ok
+test_snapshot_reuse (test_warehouse.WarehouseTest.test_snapshot_reuse) ... ok
+test_sql_injection_is_literal (test_warehouse.WarehouseTest.test_sql_injection_is_literal) ... ok
+test_stale_running_run_detected (test_warehouse.WarehouseTest.test_stale_running_run_detected) ... ok
+test_tampering_detected (test_warehouse.WarehouseTest.test_tampering_detected) ... ok
+test_unsupported_currency (test_warehouse.WarehouseTest.test_unsupported_currency) ... ok
+test_wrong_header (test_warehouse.WarehouseTest.test_wrong_header) ... ok
+test_zero_revenue_defined (test_warehouse.WarehouseTest.test_zero_revenue_defined) ... ok
+
+----------------------------------------------------------------------
+Ran 51 tests in 1.142s
+
+OK

@@ -6,7 +6,7 @@
 
 | Project Title | Core Skills Used | Project Type | Details Link |
 | :--- | :--- | :--- | :--- |
-| **1. Wholesale Furniture Sales Data Warehouse Modeling** | Data Modeling (Star Schema), Advanced SQL, ETL | Data Engineering | [Explore Project](Project_1_Data_Warehous/README.md) |
+| **1. Furniture Sales Intelligence — Auditable Retail Data Warehouse** | Star Schema, Incremental ETL, Advanced SQL, Data Quality, FastAPI, BI, Docker, CI | Data Engineering / Analytics Engineering | [Explore Project](Project_1_Data_Warehous/README.md) |
 | **2. MarketPulse ML — Stock Forecasting & Model Operations (Thesis Upgrade)** | Time Series, Keras, Leakage-Aware Evaluation, FastAPI, MLOps, Docker, CI | ML Engineering / AI | [Explore Project](Project_2_Stock_Prediction_DL/README.md) |
 
 ---

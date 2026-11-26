@@ -1,0 +1,219 @@
+{
+  "environment": {
+    "python": "3.12.14",
+    "sqlite": "3.53.1",
+    "platform": "Linux",
+    "architecture": "x86_64"
+  },
+  "notes": "Synthetic, seed 42; timings are single-run local measurements, not a production SLA.",
+  "scenarios": [
+    {
+      "rows": 5000,
+      "file_sha256": "aacf891af37f6b4c25bd1c237b6bd2999309c75f46f5d60c6fe6715524f1b0e3",
+      "independent_source_totals": {
+        "sales": 5000,
+        "units": 53373,
+        "gross_cents": 1813962000,
+        "discount_cents": 107151800,
+        "net_cents": 1706810200,
+        "customers": 250,
+        "products": 10
+      },
+      "warehouse_totals": {
+        "sales": 5000,
+        "units": 53373,
+        "gross_cents": 1813962000,
+        "discount_cents": 107151800,
+        "net_cents": 1706810200,
+        "customers": 250,
+        "products": 10
+      },
+      "quality": {
+        "passed": true,
+        "checks": [
+          {
+            "name": "sqlite_integrity",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "foreign_keys",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "raw_fact_one_to_one",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "mart_fact_count",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "money_and_quantity",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "committed_run_reconciliation",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "raw_payload_hashes",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "raw_to_fact_attributes",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "date_attributes",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "money_reconciliation",
+            "failures": 0,
+            "passed": true
+          }
+        ],
+        "counts": {
+          "raw_sale": 5000,
+          "fact_sales": 5000,
+          "dim_date": 731,
+          "dim_customer": 250,
+          "dim_product": 10,
+          "ingest_run": 1
+        }
+      },
+      "replay": {
+        "status": "replayed",
+        "rows_inserted": 0,
+        "rows_skipped": 5000
+      },
+      "timings_seconds": {
+        "load": 0.4602,
+        "full_analytics": 0.0261
+      },
+      "negative_control": {
+        "invalid_batch_rejected": true,
+        "totals_unchanged": true
+      },
+      "backup_verified": true,
+      "months_exported": 24
+    },
+    {
+      "rows": 50000,
+      "file_sha256": "25dc11f314902c88fd00f77548953a90403f73b18cdbfff3f9eec42ba3f98840",
+      "independent_source_totals": {
+        "sales": 50000,
+        "units": 526467,
+        "gross_cents": 18032327000,
+        "discount_cents": 1082135975,
+        "net_cents": 16950191025,
+        "customers": 250,
+        "products": 10
+      },
+      "warehouse_totals": {
+        "sales": 50000,
+        "units": 526467,
+        "gross_cents": 18032327000,
+        "discount_cents": 1082135975,
+        "net_cents": 16950191025,
+        "customers": 250,
+        "products": 10
+      },
+      "quality": {
+        "passed": true,
+        "checks": [
+          {
+            "name": "sqlite_integrity",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "foreign_keys",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "raw_fact_one_to_one",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "mart_fact_count",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "money_and_quantity",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "committed_run_reconciliation",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "raw_payload_hashes",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "raw_to_fact_attributes",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "date_attributes",
+            "failures": 0,
+            "passed": true
+          },
+          {
+            "name": "money_reconciliation",
+            "failures": 0,
+            "passed": true
+          }
+        ],
+        "counts": {
+          "raw_sale": 50000,
+          "fact_sales": 50000,
+          "dim_date": 731,
+          "dim_customer": 250,
+          "dim_product": 10,
+          "ingest_run": 1
+        }
+      },
+      "replay": {
+        "status": "replayed",
+        "rows_inserted": 0,
+        "rows_skipped": 50000
+      },
+      "timings_seconds": {
+        "load": 4.4214,
+        "full_analytics": 0.2646
+      }
+    }
+  ],
+  "legacy_demo": {
+    "assumptions": "Income treated as gross USD, original currency/meaning unspecified",
+    "totals": {
+      "sales": 100,
+      "units": 479,
+      "gross_cents": 51680000,
+      "discount_cents": 2345600,
+      "net_cents": 49334400,
+      "customers": 100,
+      "products": 97
+    },
+    "quality_passed": true
+  },
+  "passed": true
+}

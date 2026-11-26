@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "seed": 42,
+  "scenarios": [
+    {
+      "rows": 5000,
+      "file_sha256": "aacf891af37f6b4c25bd1c237b6bd2999309c75f46f5d60c6fe6715524f1b0e3",
+      "warehouse_totals": {
+        "sales": 5000,
+        "units": 53373,
+        "gross_cents": 1813962000,
+        "discount_cents": 107151800,
+        "net_cents": 1706810200,
+        "customers": 250,
+        "products": 10
+      },
+      "quality_checks": [
+        "sqlite_integrity",
+        "foreign_keys",
+        "raw_fact_one_to_one",
+        "mart_fact_count",
+        "money_and_quantity",
+        "committed_run_reconciliation",
+        "raw_payload_hashes",
+        "raw_to_fact_attributes",
+        "date_attributes",
+        "money_reconciliation"
+      ]
+    },
+    {
+      "rows": 50000,
+      "file_sha256": "25dc11f314902c88fd00f77548953a90403f73b18cdbfff3f9eec42ba3f98840",
+      "warehouse_totals": {
+        "sales": 50000,
+        "units": 526467,
+        "gross_cents": 18032327000,
+        "discount_cents": 1082135975,
+        "net_cents": 16950191025,
+        "customers": 250,
+        "products": 10
+      },
+      "quality_checks": [
+        "sqlite_integrity",
+        "foreign_keys",
+        "raw_fact_one_to_one",
+        "mart_fact_count",
+        "money_and_quantity",
+        "committed_run_reconciliation",
+        "raw_payload_hashes",
+        "raw_to_fact_attributes",
+        "date_attributes",
+        "money_reconciliation"
+      ]
+    }
+  ],
+  "legacy_totals": {
+    "sales": 100,
+    "units": 479,
+    "gross_cents": 51680000,
+    "discount_cents": 2345600,
+    "net_cents": 49334400,
+    "customers": 100,
+    "products": 97
+  }
+}

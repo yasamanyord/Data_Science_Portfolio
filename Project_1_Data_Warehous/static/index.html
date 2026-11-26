@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Furniture Sales Intelligence | Yasaman Yord</title>
+<link rel="stylesheet" href="/assets/style.css">
+<script src="/assets/dashboard.js" defer></script>
+</head>
+<body>
+<aside>
+  <div class="brand"><span class="logo">FS</span><div>Furniture Sales <small>INTELLIGENCE</small></div></div>
+  <nav aria-label="Report sections">
+    <a href="#overview">Overview</a><a href="#performance">Sales performance</a><a href="#products">Product &amp; region</a><a href="#quality">Data quality</a><a href="#operations">Pipeline audit</a>
+  </nav>
+  <div class="aside-note">PORTFOLIO PROJECT<br><strong>Yasaman Yord</strong><br>Synthetic wholesale sales<br>Read-only analytics</div>
+</aside>
+<main>
+  <header id="overview"><div><p class="eyebrow">RETAIL ANALYTICS • LOCAL DEMO</p><h1>Sales intelligence</h1><p class="muted">Explore revenue, product demand, customer activity and warehouse reliability.</p></div><span class="pill" id="health" role="status">Connecting…</span></header>
+  <section class="filters" aria-label="Report filters">
+    <label>From<input id="start" type="date"></label><label>Through<input id="end" type="date"></label>
+    <label>Category<select id="category"><option value="">All categories</option></select></label>
+    <label>Country<select id="country"><option value="">All countries</option></select></label>
+    <button id="apply">Apply filters</button><button id="reset" class="secondary">Reset</button>
+  </section>
+  <p id="status" role="status" aria-live="polite">Loading report…</p>
+  <div class="kpis" id="kpis" aria-label="Key performance indicators"></div>
+  <section id="performance" class="panel"><div class="section-head"><div><p class="eyebrow">REVENUE TREND</p><h2>Monthly net sales</h2></div><span class="muted">USD • observed months</span></div>
+    <div id="trend" class="trend" aria-label="Monthly revenue chart"></div>
+    <div class="table-wrap"><table><thead><tr><th>Month</th><th>Sale lines</th><th>Units</th><th>Net revenue</th><th>Year over year</th></tr></thead><tbody id="months"></tbody></table></div>
+  </section>
+  <div class="two" id="products">
+    <section class="panel"><p class="eyebrow">CATEGORY MIX</p><h2>Net revenue by category</h2><div id="categories" class="bars"></div></section>
+    <section class="panel"><p class="eyebrow">REGIONAL PERFORMANCE</p><h2>Top regions</h2><div id="regions" class="bars"></div></section>
+  </div>
+  <section class="panel"><p class="eyebrow">PRODUCT DEMAND</p><h2>Top product types by units</h2><div class="table-wrap"><table><thead><tr><th>Rank</th><th>Product type</th><th>Units</th><th>Net revenue</th></tr></thead><tbody id="ranked"></tbody></table></div></section>
+  <section class="panel" id="quality"><div class="section-head"><div><p class="eyebrow">TRUST &amp; RECONCILIATION</p><h2>Warehouse data quality</h2></div><span id="quality-status" class="pill">Checking…</span></div><p class="muted">Whole-warehouse checks; unaffected by dashboard filters.</p><div class="checks" id="checks"></div></section>
+  <section class="panel" id="operations"><div class="section-head"><div><p class="eyebrow">DATA OPERATIONS</p><h2>Recent ingestion runs</h2></div><a href="/docs">API documentation</a></div><div class="table-wrap"><table><thead><tr><th>Started UTC</th><th>Status</th><th>Seen</th><th>Inserted</th><th>Skipped</th><th>Error</th></tr></thead><tbody id="runs"></tbody></table></div></section>
+  <footer>Furniture Sales Intelligence · Data Engineering Portfolio · Synthetic data, not business results.</footer>
+</main>
+</body>
+</html>

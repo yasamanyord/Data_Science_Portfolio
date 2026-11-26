@@ -1,0 +1,89 @@
+name: Warehouse checks
+on:
+  push:
+    paths: ["Project_1_Data_Warehous/**", ".github/workflows/warehouse-checks.yml"]
+  pull_request:
+    paths: ["Project_1_Data_Warehous/**", ".github/workflows/warehouse-checks.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: Project_1_Data_Warehous
+jobs:
+  tests-and-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: Project_1_Data_Warehous/requirements*.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - run: |
+          mkdir -p runtime
+          set -o pipefail
+          python -m unittest discover -s tests -v 2>&1 | tee runtime/test-results.txt
+      - run: node --check static/dashboard.js
+      - name: Independent reconciliation and scale probe
+        run: python -m evidence.validate > runtime/validation.json
+      - name: Regression gate
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -n "$BASE_SHA" ] && git cat-file -e "$BASE_SHA:Project_1_Data_Warehous/evidence/baseline.json" 2>/dev/null; then
+            git show "$BASE_SHA:Project_1_Data_Warehous/evidence/baseline.json" > runtime/previous-baseline.json
+            python -m evidence.regression --baseline runtime/previous-baseline.json --report runtime/validation.json
+          fi
+          python -m evidence.regression --report runtime/validation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: warehouse-validation
+          path: |
+            Project_1_Data_Warehous/runtime/test-results.txt
+            Project_1_Data_Warehous/runtime/validation.json
+          if-no-files-found: warn
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements-browser.txt
+      - run: python -m playwright install --with-deps chromium
+      - name: Exercise real browser UI
+        run: |
+          python -m warehouse demo
+          python -m uvicorn warehouse.api:app --host 127.0.0.1 --port 8000 > runtime/server.log 2>&1 &
+          PID=$!
+          trap 'kill "$PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/health && break; sleep 1; done
+          python tests/browser_smoke.py --screenshot runtime/dashboard.png --mobile-screenshot runtime/dashboard-mobile.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: warehouse-browser-evidence
+          path: |
+            Project_1_Data_Warehous/runtime/dashboard*.png
+            Project_1_Data_Warehous/runtime/server.log
+          if-no-files-found: warn
+  docker-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up --build --detach --wait
+      - name: Inspect API and seed from running container
+        run: |
+          curl -fsS http://127.0.0.1:8000/health
+          curl -fsS http://127.0.0.1:8000/api/report | python -c 'import json,sys; assert json.load(sys.stdin)["summary"]["sales"]==5000'
+          curl -fsS http://127.0.0.1:8000/api/quality | python -c 'import json,sys; assert json.load(sys.stdin)["passed"]'
+      - if: always()
+        run: docker compose logs && docker compose down --volumes

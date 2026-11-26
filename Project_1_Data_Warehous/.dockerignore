@@ -1,0 +1,9 @@
+runtime
+.venv
+__pycache__
+**/__pycache__
+tests
+docs
+evidence
+.git
+*.sqlite3*
