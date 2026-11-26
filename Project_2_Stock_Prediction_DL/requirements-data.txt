@@ -1,0 +1,3 @@
+-r requirements.txt
+# Optional provider acquisition; no automatic downloads in CI or the demo.
+yfinance>=0.2.54,<2

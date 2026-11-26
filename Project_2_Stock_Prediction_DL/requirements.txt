@@ -1,0 +1,5 @@
+# Core offline demo and service; Python 3.11+ (tested locally with 3.12).
+numpy>=1.26,<3
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+httpx>=0.27,<1
