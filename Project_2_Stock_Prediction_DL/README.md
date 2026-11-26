@@ -35,7 +35,7 @@ This project focuses on **Stock Price Forecasting** using Deep Learning models (
 
 ### 📄 Full Research Thesis (Bachelor's Degree)
 
-➡️ [**Download/View Complete Thesis Document (PDF)**]([[Full Research.pdf]](https://github.com/yasamanyord/Data_Science_Portfolio/blob/9c77e6d9ac7ba54ff288ecbaabd7c18c88a18251/Project_2_Stock_Prediction_DL/project%20description.pdf))
+(https://github.com/yasamanyord/Data_Science_Portfolio/blob/9c77e6d9ac7ba54ff288ecbaabd7c18c88a18251/Project_2_Stock_Prediction_DL/project%20description.pdf))
 
 ## 📁 Project Files
 * **`Project_2_Stock_Prediction_DL/Scripts/simple_lstm_predictor.py`**: Main script for data processing, model training, comparative evaluation, and results visualization.
